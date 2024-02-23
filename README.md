@@ -1,6 +1,31 @@
 # Main-Project
 A repository for storing codes and files of our S7-S8 Main Project
 
+
+Violence Detection Dataset: RWF-2000
+Dataset Directory Structure:
+
+```
+───violenceDetection
+    ├───train
+    │   ├───Fight
+    │   │       -1l5631l3fg_0.avi
+    │   │       -1l5631l3fg_1.avi
+    │   │
+    │   └───NonFight
+    │           -1l5631l3fg_0.avi
+    │           -1l5631l3fg_1.avi
+    └───val
+        ├───Fight
+        │       0Ow4cotKOuw_0.avi
+        │       0Ow4cotKOuw_1.avi
+        │
+        └───NonFight
+                10uSOcwS_0.avi
+                1AURh0Wj_0.avi
+                
+```
+
 ---
 
 ## Reports
