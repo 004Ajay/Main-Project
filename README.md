@@ -2,7 +2,8 @@
 A repository for storing codes and files of our S7-S8 Main Project
 
 
-Violence Detection Dataset: RWF-2000
+Violence Detection Dataset: RWF-2000 | [GitHub](https://github.com/mchengny/RWF2000-Video-Database-for-Violence-Detection) | [Paper](https://arxiv.org/pdf/1911.05913v3.pdf)
+
 Dataset Directory Structure:
 
 ```
