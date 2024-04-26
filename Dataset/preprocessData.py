@@ -99,7 +99,6 @@ def rename_files(path):
                                 os.rename(file_path, new_file_path)
                             i += 1
 
-path = r"D:/Git-Uploads/Main Project/Main-Project/dataset 224"  # path to your video dataset to be renamed
 
 ########################################################################
 #                           SPLIT INTO FRAMES                          #
@@ -144,9 +143,6 @@ def split_frames_to_train_val(folder_path, output_folder):
 
                 print(f"{video_name} Done\n")
 
-video_folder_path = r"D:/Git-Uploads/Main Project/Main-Project/Violence data/violenceDetection"  # path to folder with video
-output_folder = r"D:/Git-Uploads/Main Project/Main-Project/ Dataset Resized"  # path to store extracted frame pictures
-
 ########################################################################
  #                          RESIZE FRAMES                              #
 ########################################################################
@@ -166,7 +162,6 @@ def process_frames(base_dir, frame_size, output_format='jpeg'):
             frame_basename = os.path.basename(frame_path).split('.')[0]
             output_frame_path = os.path.join(base_dir, folder, f"{frame_basename}_processed.{output_format}")
             cv2.imwrite(output_frame_path, resized_frame)
-#frame_size = 224
 
 ########################################################################
 #                    CONVERT TO .npy AND SAVE                          #
@@ -210,6 +205,3 @@ def save_frames_as_npy_and_delete_folders(root_dir):
                 # Remove the event folder after saving .npy file
                 shutil.rmtree(event_path)
                 print(f'Deleted folder {event_path}')
-
-# Set the root directory of your dataset
-# dataset_root = "D:\Git-Uploads\Main Project\Main-Project\dataset 224"
