@@ -7,14 +7,18 @@ from PIL import Image
 import shutil
 from glob import glob
 
+# SAMPLE CALL:
+# python preprocessData.py --base_dir <> --rename_files --split_to_frames --frame_size=224 --process --save_as_npy --dataset_root <>
+
 ########################################################################
-#                              MAIN FUCTION                
+#                              MAIN FUCTION                            #
 ########################################################################
 
 def main():
+    # For bool args : if arg is passed, the default is True else write False explicitly.
     parser = argparse.ArgumentParser(description='Process frame images and optionally save as npy files.')
     parser.add_argument('--base_dir', type=str, default="D:/Git-Uploads/Main Project/Main-Project/Dataset renamed", help='Base directory')
-    parser.add_argument('--rename_files', action='store_true', help='Whether to rename files based on their category') #argument is present in the command line, its value will be set to True. else False.
+    parser.add_argument('--rename_files', action='store_true', help='Whether to rename files based on their category') 
     parser.add_argument('--split_to_frames', action='store_true', help='Whether to split videos into frames')
     parser.add_argument('--frame_size', type=int, default=224, help='Size to  resize')
     parser.add_argument('--process', action='store_true', help='Whether to process and resize frames')
@@ -51,9 +55,8 @@ def main():
             return
 
 ########################################################################
-#                            RENAME FILES               
+#                            RENAME FILES                              #
 ########################################################################
-
 
 def rename_files(path):
     entries = os.listdir(path)
@@ -69,11 +72,7 @@ def rename_files(path):
 
                 if os.path.isdir(sub_path):
                     files = os.listdir(sub_path)
-
-                    # Initialize the counter before the loop
                     i = 1
-
-                    # Wrap the file iteration with tqdm for progress bar
                     for file_name in tqdm(files, desc=f"Renaming files in {sub_path}"):
                         file_path = os.path.join(sub_path, file_name)
 
@@ -103,9 +102,8 @@ def rename_files(path):
 path = r"D:/Git-Uploads/Main Project/Main-Project/dataset 224"  # path to your video dataset to be renamed
 
 ########################################################################
-#                           SPLIT INTO FRAMES               
+#                           SPLIT INTO FRAMES                          #
 ########################################################################
-
 
 def split_frames_to_train_val(folder_path, output_folder):
     # Create train and val folders
@@ -150,7 +148,7 @@ video_folder_path = r"D:/Git-Uploads/Main Project/Main-Project/Violence data/vio
 output_folder = r"D:/Git-Uploads/Main Project/Main-Project/ Dataset Resized"  # path to store extracted frame pictures
 
 ########################################################################
- #                          RESIZE FRAMES             
+ #                          RESIZE FRAMES                              #
 ########################################################################
 
 def process_frames(base_dir, frame_size, output_format='jpeg'):
@@ -168,14 +166,10 @@ def process_frames(base_dir, frame_size, output_format='jpeg'):
             frame_basename = os.path.basename(frame_path).split('.')[0]
             output_frame_path = os.path.join(base_dir, folder, f"{frame_basename}_processed.{output_format}")
             cv2.imwrite(output_frame_path, resized_frame)
-
-
-
 #frame_size = 224
 
-
 ########################################################################
-#                    CONVERT TO .npy AND SAVE           
+#                    CONVERT TO .npy AND SAVE                          #
 ########################################################################
 
 def save_frames_as_npy_and_delete_folders(root_dir):
