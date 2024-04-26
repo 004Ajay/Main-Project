@@ -37,7 +37,7 @@ def main():
             return
 
     if args.save_as_npy:
-        if args.base_dir:
+        if args.base_dir & args.dataset_root:
             save_frames_as_npy_and_delete_folders(args.base_dir)
         else:
             print("Error: Please specify --base_dir argument before using --save_as_npy.")
