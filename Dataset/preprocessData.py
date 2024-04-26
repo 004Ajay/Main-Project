@@ -8,7 +8,7 @@ import shutil
 from glob import glob
 
 # SAMPLE CALL:
-# python preprocessData.py --base_dir <> --rename_files --split_to_frames --frame_size=224 --process --save_as_npy --dataset_root <>
+# python preprocessData.py --base_dir <Dataset path> --rename_files --split_to_frames --frame_size=224 --process --save_as_npy --dataset_root <Dataset pre-proc ouptut path>
 
 ########################################################################
 #                              MAIN FUCTION                            #
