@@ -1,29 +1,34 @@
+#####################################################################################
+#                                FILE INFORMATION                                   #
+#   Filename: train.py                                                              #
+#   Main Author:  Ajay T Shaju                                                      #
+#   Co-Authors: Justin Thomas Jo, Emil Saj Abraham, Vishnuprasad KG                 #
+#   Date(Last Updated): 01/05/2024                                                  #
+#####################################################################################
+
 import os
 import cv2
 import numpy as np
+import pandas as pd
 import tensorflow as tf
+from tensorflow.keras import mixed_precision
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.utils import Sequence, to_categorical
 from tensorflow.keras.layers import (Input, Conv2D, BatchNormalization, TimeDistributed,
                                      LSTM, Dense, GlobalAveragePooling2D, GlobalMaxPooling2D,
                                      Layer, Concatenate, Dropout, Layer, Multiply, Flatten)
-import pandas as pd
-from tensorflow.keras.models import Model, load_model
-from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping, CSVLogger, LearningRateScheduler
-from tensorflow.keras.applications import MobileNetV2
-from tensorflow.keras import mixed_precision
 
-mixed_precision.set_global_policy('float32')
+mixed_precision.set_global_policy('float32')  # for computational speedup by performing operations in half-precision format
 
-
-# ------------------------------------------------------------------------------------------------------------------------
-res_path = "C:/Users/ajayt/OneDrive/Desktop/Main P/other/our_method/Mine/hockey_result" # path to save results
-data_dir = r"C:\Users\ajayt\OneDrive\Desktop\Main P\HockeyFloat" # path to dataset directory
+res_path = r"C:\Users\ajayt\Project\Results\train" # path to save results
+data_dir = r"C:\Users\ajayt\Project\HockeyFight" # path to dataset directory
 data_folders = ['train', 'val']
 train_dir = os.path.join(data_dir, data_folders[0])  # 'train' folder
 val_dir = os.path.join(data_dir, data_folders[1])  # 'val' folder
 print(f"Train Path: {train_dir}\nValidation Path: {val_dir}")
-# ------------------------------------------------------------------------------------------------------------------------
 
 # Configure TensorFlow to use GPU memory incrementally
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -41,6 +46,8 @@ frame_height = 224
 frame_width = 224
 num_channels = 3
 num_classes = 2
+lr_rate = 0.001
+loss_fn = 'categorical_crossentropy'
 
 class FramesSequence(Sequence):
     def __init__(self, directory, batch_size=1, shuffle=True, data_augmentation=True):
@@ -88,8 +95,7 @@ class FramesSequence(Sequence):
         return int(steps_per_epoch)
 
     def __getitem__(self, index):
-        """Get the data of each batch
-        """
+        """Get the data of each batch"""
         # get the indexs of each batch
         batch_indexs = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
         # using batch_indexs to get path of current batch
@@ -124,6 +130,7 @@ class FramesSequence(Sequence):
         return (data-mean) / std
     
     def uniform_sampling(self, video, target_frames=num_frames):
+        """Taking a sample of frames from all available frames"""
         # get total frames of input video and calculate sampling interval
         len_frames = int(len(video))
         interval = int(np.ceil(len_frames/target_frames))
@@ -144,55 +151,10 @@ class FramesSequence(Sequence):
         # get sampled video
         return np.array(sampled_video, dtype=np.float32)
     
-    def dynamic_crop(self, video):
-        # extract layer of optical flow from video
-        opt_flows = video[...,3]
-        # sum of optical flow magnitude of individual frame
-        magnitude = np.sum(opt_flows, axis=0)
-        # filter slight noise by threshold 
-        thresh = np.mean(magnitude)
-        magnitude[magnitude<thresh] = 0
-        # calculate center of gravity of magnitude map and adding 0.001 to avoid empty value
-        x_pdf = np.sum(magnitude, axis=1) + 0.001
-        y_pdf = np.sum(magnitude, axis=0) + 0.001
-        # normalize PDF of x and y so that the sum of probs = 1
-        x_pdf /= np.sum(x_pdf)
-        y_pdf /= np.sum(y_pdf)
-        # randomly choose some candidates for x and y 
-        x_points = np.random.choice(a=np.arange(224), size=10, replace=True, p=x_pdf)
-        y_points = np.random.choice(a=np.arange(224), size=10, replace=True, p=y_pdf)
-        # get the mean of x and y coordinates for better robustness
-        x = int(np.mean(x_points))
-        y = int(np.mean(y_points))
-        # avoid to beyond boundaries of array
-        x = max(56,min(x,167))
-        y = max(56,min(y,167))
-        # get cropped video 
-        return video[:,x-56:x+56,y-56:y+56,:]  
-    
-    def color_jitter(self,video):
-        # range of s-component: 0-1
-        # range of v component: 0-255
-        s_jitter = np.random.uniform(-0.2,0.2)
-        v_jitter = np.random.uniform(-30,30)
-        for i in range(len(video)):
-            hsv = cv2.cvtColor(video[i], cv2.COLOR_RGB2HSV)
-            s = hsv[...,1] + s_jitter
-            v = hsv[...,2] + v_jitter
-            s[s<0] = 0
-            s[s>1] = 1
-            v[v<0] = 0
-            v[v>255] = 255
-            hsv[...,1] = s
-            hsv[...,2] = v
-            video[i] = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
-        return video
-
     def load_data(self, path):
         data = np.load(path, mmap_mode='r')
         data = np.float32(data)
         if self.data_aug:
-            # data[...,:3] = self.color_jitter(data[...,:3])
             data = self.random_flip(data, prob=0.5)
         data = self.uniform_sampling(video=data, target_frames=num_frames)
         data[...,:3] = self.normalize(data[...,:3])
@@ -203,7 +165,7 @@ class SpatialAttention(Layer):
         super(SpatialAttention, self).__init__(**kwargs)
 
     def build(self, input_shape):
-        self.conv2d = Conv2D(1, (7, 7), activation='sigmoid', padding='same') # Conv2D layer will be used to learn the spatial attention weights
+        self.conv2d = Conv2D(1, (7, 7), activation='sigmoid', padding='same') # used to learn the spatial attention weights
         super(SpatialAttention, self).build(input_shape)
 
     def call(self, inputs):
@@ -229,24 +191,19 @@ def violence_detection_model(input_shape, num_classes):
     base_model.trainable = True
     for layer in base_model.layers[:-20]:  # Freeze all but the last 20 layers
         layer.trainable = False
-
+    # TimeDistributed layers do the corresponding operations to all the frames passed to the network in a batch
     x = TimeDistributed(base_model)(inputs)
-    x = TimeDistributed(SpatialAttention())(x)
-    
-    # Adding BatchNormalization
-    x = TimeDistributed(BatchNormalization())(x)
-    
-    avg_pool = TimeDistributed(GlobalAveragePooling2D())(x)
-    max_pool = TimeDistributed(GlobalMaxPooling2D())(x)
-    concatenated_pools = Concatenate(axis=-1)([avg_pool, max_pool])
-    
-    # Adding LSTM layer to capture temporal dynamics
-    x = LSTM(128, return_sequences=False)(concatenated_pools)
-    x = Flatten()(x)
+    x = TimeDistributed(SpatialAttention())(x) # to put attention on extracted spatial features
+    x = TimeDistributed(BatchNormalization())(x) # to stablize the learned features
+    # pooling layers to reduce the number of parameters and spatial dimension
+    avg_pool = TimeDistributed(GlobalAveragePooling2D())(x) # takes average of a feature map
+    max_pool = TimeDistributed(GlobalMaxPooling2D())(x) # take max value of a feature map
+    concatenated_pools = Concatenate(axis=-1)([avg_pool, max_pool]) # normal concatenation
+    x = LSTM(128, return_sequences=False)(concatenated_pools) # to capture temporal dynamics
+    x = Flatten()(x) # from 2D feature map to 1D vector, for making input dim compatible with Dense layers
+    x = Dropout(0.5)(x) # drop off less important features 
     x = Dense(128, activation='relu')(x)
-    x = Dropout(0.5)(x)
-    # x = Dense(100, activation='relu')(x)
-    # x = Dropout(0.5)(x)
+    x = Dropout(0.5)(x) # removing inactive neurons which prevents overfitting
     x = Dense(25, activation='relu')(x)
     x = Dropout(0.5)(x)
     x = Dense(10, activation='relu')(x)
@@ -257,11 +214,11 @@ def violence_detection_model(input_shape, num_classes):
 
 # Create and compile the model
 model = violence_detection_model((num_frames, frame_height, frame_width, num_channels), num_classes)
-model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer=Adam(learning_rate=0.001), loss=loss_fn, metrics=['accuracy'])
 model.summary()
 
 # Check if the checkpoint exists
-checkpoint_path = os.path.join(res_path, "best_model.keras")
+checkpoint_path = os.path.join(res_path, "Best_Model.keras")
 if os.path.exists(checkpoint_path):
     # Load the model with custom objects
     model = load_model(checkpoint_path, custom_objects = {'SpatialAttention': SpatialAttention})
@@ -270,17 +227,17 @@ else:
     # If checkpoint does not exist, initialize a new model
     input_shape = (num_frames, frame_height, frame_width, num_channels)
     model = violence_detection_model(input_shape, num_classes)
-    model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=Adam(learning_rate=lr_rate), loss=loss_fn, metrics=['accuracy'])
     print("Starting training from scratch.")
 
 # Callbacks
-checkpoint_path = os.path.join(res_path, "best_model.keras")
+checkpoint_path = os.path.join(res_path, 'Best_Model.keras')
 checkpoint_cb = ModelCheckpoint(checkpoint_path, save_best_only=True, verbose=1)
 reduce_lr_cb = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=3, min_lr=0.001, verbose=1)
 early_stopping_cb = EarlyStopping(monitor='val_loss', patience=20, verbose=1, restore_best_weights=True)
-csv_logger = CSVLogger(os.path.join(res_path, "training_log.csv"), append=True)
+csv_logger = CSVLogger(os.path.join(res_path, 'training_log.csv'), append=True)
 
-# Example of a Learning Rate Scheduler
+# Learning Rate Scheduler
 def scheduler(epoch, lr):
     if epoch < 10:
         return lr
@@ -288,15 +245,16 @@ def scheduler(epoch, lr):
         return lr * tf.math.exp(-0.1)
 lr_scheduler = LearningRateScheduler(scheduler)
 
-# Create data generators
+# Data Generators
 train_gen = FramesSequence(directory=train_dir, batch_size=batch, shuffle=True, data_augmentation=True)
 val_gen = FramesSequence(directory=val_dir, batch_size=batch, shuffle=False, data_augmentation=False)
 
 # Fit the model
-# with tf.device('CPU'):
-history = model.fit(train_gen, validation_data=val_gen, epochs=100, callbacks=[checkpoint_cb, reduce_lr_cb, early_stopping_cb, csv_logger, lr_scheduler])
+# with tf.device('CPU'): # if tf didn't work with GPU
+history = model.fit(train_gen, validation_data=val_gen, epochs=100,
+                    callbacks=[checkpoint_cb, reduce_lr_cb, early_stopping_cb, csv_logger, lr_scheduler])
 
 # Save the model and training history
-model.save(os.path.join(res_path, 'final_model.keras'))
+model.save(os.path.join(res_path, 'Final_Model.keras'))
 history_df = pd.DataFrame(history.history)
 history_df.to_csv(os.path.join(res_path, 'training_history.csv'), index=False)
