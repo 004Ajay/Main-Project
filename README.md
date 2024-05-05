@@ -40,3 +40,8 @@ Dataset Directory Structure:
 * [First Review Presentation](https://github.com/004Ajay/Main-Project/blob/main/Docs/Main%20Project%20First%20Review.pdf)
 
 * [Zeorth Review Presentation](https://github.com/004Ajay/Main-Project/blob/main/Docs/Main%20Project%20Zeroth%20Review.pdf)
+
+
+## Poster
+
+![Poster](Poster.png)
