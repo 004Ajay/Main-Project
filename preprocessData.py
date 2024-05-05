@@ -28,6 +28,7 @@ def main():
 
     if args.rename_files:
         if  args.base_dir:
+            print("Renaming files ....")
             rename_files(args.base_dir)
         else:
             print("Error: Please specify --base_dir arguments before using --rename_files.")
@@ -35,24 +36,28 @@ def main():
 
     if args.split_to_frames:
         if args.base_dir:
+            print("Splitting to frames ....")
             split_frames_to_train_val(args.base_dir, args.base_dir)
         else:
             print("Error: Please specify --base_dir  argument before using --split_to_frames.")
             return
-
+    if args.process:
+        if args.base_dir:
+            print("Resizing files ....")
+            process_frames(args.base_dir, args.frame_size)            
+        else:
+            print("Error: Please specify --base_dir argument.")
+            return
+        
     if args.save_as_npy:
         if args.base_dir & args.dataset_root:
+            print("Saving frames as npy ....")
             save_frames_as_npy_and_delete_folders(args.base_dir)
         else:
             print("Error: Please specify --base_dir argument before using --save_as_npy.")
             return
 
-    if args.process:
-        if args.base_dir:
-            process_frames(args.base_dir, args.frame_size)
-        else:
-            print("Error: Please specify --base_dir argument.")
-            return
+    
 
 ########################################################################
 #                            RENAME FILES                              #
@@ -98,7 +103,7 @@ def rename_files(path):
                             if not os.path.exists(new_file_path):
                                 os.rename(file_path, new_file_path)
                             i += 1
-
+    print("RENAME FILES Completed")
 
 ########################################################################
 #                           SPLIT INTO FRAMES                          #
@@ -112,7 +117,7 @@ def split_frames_to_train_val(folder_path, output_folder):
     os.makedirs(train_folder, exist_ok=True)
     os.makedirs(val_folder, exist_ok=True)
 
-    categories = ["NonFight","Fight","nonfight","fight"]  # List of categories
+    categories = ["No_Fight","Fight","no_fight","fight"]  # List of categories
 
     for split in ["train", "val"]:
         for category in categories:
@@ -142,6 +147,7 @@ def split_frames_to_train_val(folder_path, output_folder):
                 video_capture.release()
 
                 print(f"{video_name} Done\n")
+    print("SPLIT INTO FRAMES Completed")
 
 ########################################################################
  #                          RESIZE FRAMES                              #
@@ -149,7 +155,7 @@ def split_frames_to_train_val(folder_path, output_folder):
 
 def process_frames(base_dir, frame_size, output_format='jpeg'):
     
-    frame_folders = ['train/Fight', 'train/NonFight', 'val/Fight', 'val/NonFight']
+    frame_folders = ['train/Fight', 'train/No_Fight', 'val/Fight', 'val/no_fight']
     
     for folder in frame_folders:
         frame_files = glob(os.path.join(base_dir, folder, '*'))  # Assuming frame images are in various formats
@@ -162,7 +168,7 @@ def process_frames(base_dir, frame_size, output_format='jpeg'):
             frame_basename = os.path.basename(frame_path).split('.')[0]
             output_frame_path = os.path.join(base_dir, folder, f"{frame_basename}_processed.{output_format}")
             cv2.imwrite(output_frame_path, resized_frame)
-
+    print("RESIZE FRAMES Completed")
 ########################################################################
 #                    CONVERT TO .npy AND SAVE                          #
 ########################################################################
@@ -205,3 +211,4 @@ def save_frames_as_npy_and_delete_folders(root_dir):
                 # Remove the event folder after saving .npy file
                 shutil.rmtree(event_path)
                 print(f'Deleted folder {event_path}')
+    print("Completed CONVERT TO .npy AND SAVE ")
