@@ -1,6 +1,6 @@
 <b><h1 align="center"> *Concatenation of Attention Enhanced Spatial and Temporal Features for Violence Detection from Videos* </h1></b>
 
-Violence Detection Dataset: **Hockey Fights Dataset**
+Dataset: **Hockey Fights**
 
 Dataset Directory Structure:
 
@@ -26,22 +26,66 @@ Dataset Directory Structure:
 
 ---
 
+## Try it yourself (Windows):
+
+1. Clone the Devika repository:
+
+```
+    https://github.com/004Ajay/Main-Project.git
+```
+
+2. Navigate to the project directory:
+
+```
+    cd Main-Project
+```
+
+3. Create a virtual environment
+
+```
+python -m venv <your env name>
+
+cd <your env name>
+
+Scripts\activate
+```
+
+4. Install the required dependencies
+
+```
+pip install -r requirements.txt
+```
+_dependecies does not include libraries for Experiments Folder._
+
+5. Download the dataset and arrange as per the structure given above.
+
+6. Start training:
+
+```
+    python train.py
+```
+
+7. Evaluate your model:
+
+```
+    python evaluate.py
+```
+
+---
+
 ## Documents
 
-### Reports
-
-* [Project Phase 1 Report](https://github.com/004Ajay/Main-Project/blob/main/Docs/Phase%201%20Project%20Report.pdf)
-
-* [Project Phase 2 Report (Not Yet)](https://github.com/004Ajay/Main-Project/blob/main/Docs/Phase%201%20Project%20Report.pdf)
+* [Final Report (Not Yet)](https://github.com/004Ajay/Main-Project/blob/main/Docs/Phase%201%20Project%20Report.pdf)
 
 
-### Presentations
-
-* [First Review Presentation](https://github.com/004Ajay/Main-Project/blob/main/Docs/Main%20Project%20First%20Review.pdf)
-
-* [Zeorth Review Presentation](https://github.com/004Ajay/Main-Project/blob/main/Docs/Main%20Project%20Zeroth%20Review.pdf)
-
+---
 
 ## Poster
 
 ![Poster](Poster.png)
+
+---
+
+## Creators
+
+[Ajay T Shaju](https://github.com/004Ajay) | [Emil Saj Abraham](https://github.com/Emilsabrhm) | [Justin Thomas Jo](https://github.com/Juz-Tom-J) | [Vishnuprasad KG](https://github.com/VISHNUPRASAD-K-G)

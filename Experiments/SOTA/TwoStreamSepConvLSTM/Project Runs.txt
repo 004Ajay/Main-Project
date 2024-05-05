@@ -1,0 +1,21 @@
+With data preprocessing:
+
+python train.py --dataset rwf2000 --vidLen 32 --batchSize 4 --numEpochs 5 --mode both --preprocessData --lstmType sepconv --savePath "C:/Users/ajayt/OneDrive/Desktop/Main P/other/saves"
+
+
+Without data preprocessing:
+
+python train.py --dataset rwf2000 --vidLen 32 --batchSize 4 --numEpochs 5 --mode both --lstmType sepconv --savePath "C:/Users/ajayt/OneDrive/Desktop/Main P/other/saves"
+
+
+GPU runs:
+
+python -u "c:/Users/ajayt/OneDrive/Desktop/Main P/other/TwoStreamSepConvLSTM_ViolenceDetection/train.py" --dataset rwf2000 --vidLen 32 --batchSize 4 --numEpochs 5 --mode both --lstmType sepconv --savePath "C:/Users/ajayt/OneDrive/Desktop/Main P/other/saves"
+
+
+cd "D:/tf_gpu_vir_env"
+
+
+NEW-KAGGLE
+
+python train.py --dataset rwf2000 --vidLen 32 --batchSize 4 --numEpochs 1 --mode both --preprocessData --lstmType sepconv --savePath "C:/Users/ajayt/OneDrive/Desktop/sepconv_kaggle/saves" --dest "C:/Users/ajayt/OneDrive/Desktop/sepconv_kaggle/rwf2000/processed"
