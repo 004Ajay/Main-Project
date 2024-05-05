@@ -28,7 +28,7 @@ Dataset Directory Structure:
 
 ## Try it yourself (Windows):
 
-1. Clone the Devika repository:
+1. Clone the repository:
 
 ```
     https://github.com/004Ajay/Main-Project.git
@@ -55,7 +55,7 @@ Scripts\activate
 ```
 pip install -r requirements.txt
 ```
-_dependecies does not include libraries for Experiments Folder._
+_dependecies does not include libraries for the files in the `Experiments Folder`._
 
 5. Download the dataset and arrange as per the structure given above.
 
