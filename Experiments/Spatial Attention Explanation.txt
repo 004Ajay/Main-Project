@@ -1,0 +1,31 @@
+Spatial Attention as a block diagram.                                                      
+   
+                                                                     class SpatialAttention(Layer):
+                  +---------------+                                      def __init__(self, **kwargs):
+                  |    Inputs     |  <-- Numpy Array                         super(SpatialAttention, self).__init__(**kwargs)
+                  +-------+-------+                                      
+                          |                                              def build(self, input_shape):
+              +-----------+-----------+                                      self.conv2d = Conv2D(1, (7, 7), activation='sigmoid', padding='same')
+              |                       |                                      super(SpatialAttention, self).build(input_shape)
+     +--------v--------+     +--------v--------+        
+     |   Max Pooling   |     |   Avg Pooling   |                         def call(self, inputs):
+     +--------+--------+     +--------+--------+                             max_pool = tf.reduce_max(inputs, axis=-1, keepdims=True)
+              |                       |                                      avg_pool = tf.reduce_mean(inputs, axis=-1, keepdims=True)
+              +-----------+-----------+                                      concat = Concatenate(axis=-1)([max_pool, avg_pool])
+                          |                                                  attention = self.conv2d(concat)
+                  +-------v-------+                                          return Multiply()([inputs, attention])
+                  |   Concatenate |
+                  +-------+-------+
+                          |
+                  +-------v--------+
+                  |     Conv2D     |
+                  | (7x7, Sigmoid) |
+                  +-------+--------+
+                          |
+                  +-------v--------+
+                  |    Multiply    |
+                  +-------+--------+
+                          |
+                  +-------v--------+
+                  |     Output     | --> Attention Map
+                  +----------------+
