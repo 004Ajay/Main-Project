@@ -198,7 +198,8 @@ def save_frames_as_npy_and_delete_folders(root_dir):
                 for file_name in file_names:
                     file_path = os.path.join(event_path, file_name)
                     with Image.open(file_path) as img:
-                        images.append(np.array(img))
+                        img_array = np.array(img, dtype=np.float32) # Convert to float32
+                        images.append(img_array)
 
                 # Convert list of images to numpy array
                 images_array = np.stack(images, axis=0)
