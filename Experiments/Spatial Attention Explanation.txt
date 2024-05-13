@@ -29,3 +29,31 @@ Spatial Attention as a block diagram.
                   +-------v--------+
                   |     Output     | --> Attention Map
                   +----------------+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+useful: https://github.com/abduulrahmankhalid/Real-Time-Violence-Detection
