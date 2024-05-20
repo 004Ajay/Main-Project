@@ -1,6 +1,6 @@
 <b><h1 align="center"> *Concatenation of Attention Enhanced Spatial and Temporal Features for Violence Detection from Videos* </h1></b>
 
-_This work is an attempt towards simulating how humans react to violent situations using Convolutional Neural Network (CNN) and Long Short Term Memory (LSTM) architectures._
+<i><h3 align="center"> This work is an attempt towards simulating how humans react to violent situations using Convolutional Neural Network (CNN) and Long Short Term Memory (LSTM) architectures. </h3></i>
 
 Dataset: **Hockey Fights**
 
@@ -42,7 +42,7 @@ Dataset Directory Structure:
     cd Main-Project
 ```
 
-3. Create a virtual environment
+3. Create a virtual environment or see [this](https://medium.com/@ajaytshaju/how-to-make-a-virtual-environment-in-python-windows-17a30b67d3bc) for a detailed guide.
 
 ```
     python -m venv <your env name>
@@ -77,7 +77,9 @@ _dependecies does not include libraries for the files in the `Experiments Folder
 
 ## Documents
 
-* [Final Report (Not Yet)](https://github.com/004Ajay/Main-Project/blob/main/Docs/Phase%201%20Project%20Report.pdf)
+* [Main Project Report Phase 1](https://github.com/004Ajay/Main-Project/blob/main/Docs/Reports/Main%20Project%20Report%20Phase%201.pdf)
+
+* [Main Project Report Phase 2](https://github.com/004Ajay/Main-Project/blob/main/Docs/Reports/Main%20Project%20Report%20Phase%202.pdf)
 
 
 ---
